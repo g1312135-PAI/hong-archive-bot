@@ -11,8 +11,8 @@ def send_telegram_message(text):
     requests.post(url, data=payload)
 
 def fetch_history_news():
-    # 검색어: '홍장원 내란' (2024년 12월 사태 및 이후 공식 행보 집중 검색)
-    search_url = "https://search.naver.com/search.naver?where=news&query=%ED%99%8D%EC%9E%A5%EC%9B%90+%EB%82%B4%EB%9E%80&sort=1"
+    # 검색어: '홍장원 국정원' (테스트를 위해 범위를 넓힘)
+    search_url = "https://search.naver.com/search.naver?where=news&query=%ED%99%8D%EC%9E%A5%EC%9B%90+%EA%B5%AD%EC%A0%95%EC%9B%90&sort=1"
     headers = {'User-Agent': 'Mozilla/5.0'}
     
     response = requests.get(search_url, headers=headers)
