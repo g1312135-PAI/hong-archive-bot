@@ -1,6 +1,6 @@
 import os
 import requests
-from bs4 import BeautifulSoup
+import xml.etree.ElementTree as ET
 
 TELEGRAM_TOKEN = os.environ.get('TELEGRAM_TOKEN')
 CHAT_ID = os.environ.get('TELEGRAM_CHAT_ID')
@@ -10,26 +10,24 @@ def send_telegram_message(text):
     payload = {'chat_id': CHAT_ID, 'text': text}
     requests.post(url, data=payload)
 
-def fetch_history_news():
-    # 검색어: '홍장원 국정원' (테스트를 위해 범위를 넓힘)
-    search_url = "https://search.naver.com/search.naver?where=news&query=%ED%99%8D%EC%9E%A5%EC%9B%90+%EA%B5%AD%EC%A0%95%EC%9B%90&sort=1"
-    headers = {'User-Agent': 'Mozilla/5.0'}
+def fetch_google_news():
+    # 구글 뉴스 공식 데이터 피드 (검색어: 홍장원)
+    url = "https://news.google.com/rss/search?q=%ED%99%8D%EC%9E%A5%EC%9B%90&hl=ko&gl=KR&ceid=KR:ko"
     
-    response = requests.get(search_url, headers=headers)
-    soup = BeautifulSoup(response.text, 'html.parser')
+    response = requests.get(url)
+    root = ET.fromstring(response.content)
     
-    articles = soup.find_all('a', class_='news_tit')
+    # 구글 뉴스에서 검색된 가장 최신 기사(첫 번째 item) 추출
+    item = root.find('.//channel/item')
     
-    if articles:
-        top_article = articles[0]
-        title = top_article.get('title')
-        link = top_article.get('href')
+    if item is not None:
+        title = item.find('title').text
+        link = item.find('link').text
         
-        # 질문자님의 마음이 담긴 템플릿 구조화
         message = (
             f"🎯 [아카이브 수집 알림]\n\n"
             f"📌 공식 보도 제목:\n{title}\n\n"
-            f"🔗 권위자/공식 링크:\n{link}\n\n"
+            f"🔗 링크:\n{link}\n\n"
             f"--- [게시판 업로드용 코멘트 초안] ---\n"
             f"2024년 겨울, 국가와 국민을 위해 내린 소신 있는 결단을 기억합니다. "
             f"역사가 평가할 그날의 진실이 더 널리 알려지기를 바라며 변함없이 응원합니다.\n"
@@ -41,4 +39,4 @@ def fetch_history_news():
         print("관련 뉴스가 없습니다.")
 
 if __name__ == "__main__":
-    fetch_history_news()
+    fetch_google_news()
